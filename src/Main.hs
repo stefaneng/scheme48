@@ -48,6 +48,4 @@ readExpr input = case parse parseExpr "lisp" input of
                    Right _  -> "Found value"
 
 main :: IO ()
-main = do
-  args <- getArgs
-  putStrLn $ readExpr $ args !! 0
+main = getArgs >>= putStrLn . readExpr . head
