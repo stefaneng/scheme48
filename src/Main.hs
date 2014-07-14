@@ -16,6 +16,13 @@ symbol = oneOf "!#$%&|*+-/:<=>?@^_~"
 spaces :: Parser ()
 spaces = skipMany1 space
 
+parseString :: Parser LispVal
+parseString = do
+  char '"'
+  x <- many $ noneOf "\""
+  char '"'
+  return $ String x
+
 readExpr :: String -> String
 readExpr input = case parse (spaces >> symbol) "lisp" input of
                    Left err  -> "No match: " ++ show err
