@@ -2,6 +2,7 @@ module Main where
 
 import Text.ParserCombinators.Parsec hiding (spaces)
 import System.Environment (getArgs)
+import Control.Monad (liftM)
 
 data LispVal = Atom String
              | List [LispVal]
@@ -34,7 +35,7 @@ parseAtom = do
              _    -> Atom atom
 
 parseNumber :: Parser LispVal
-parseNumber = many1 digit >>= return . Number . read
+parseNumber = liftM (Number . read) (many1 digit)
 
 parseExpr :: Parser LispVal
 parseExpr = parseAtom
