@@ -37,6 +37,11 @@ parseAtom = do
 parseNumber :: Parser LispVal
 parseNumber = liftM (Number . read) $ many1 digit
 
+parseExpr :: Parser LispVal
+parseExpr = parseAtom
+            <|> parseString
+            <|> parseNumber
+
 readExpr :: String -> String
 readExpr input = case parse (spaces >> symbol) "lisp" input of
                    Left err  -> "No match: " ++ show err
