@@ -18,13 +18,16 @@ symbol = oneOf "!#$%&|*+-/:<=>?@^_~"
 spaces :: Parser ()
 spaces = skipMany1 space
 
-innerString :: Parser String
-innerString = many $ noneOf "\""
+escapedChars :: Parser Char
+escapedChars = do
+  char '\\'
+  x <- oneOf "\\\""
+  return x
 
 parseString :: Parser LispVal
 parseString = do
   char '"'
-  x <- innerString
+  x <- many $ escapedChars <|> noneOf "\"\\"
   char '"'
   return $ String x
 
