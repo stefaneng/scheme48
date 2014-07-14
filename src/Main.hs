@@ -10,6 +10,7 @@ data LispVal = Atom String
              | Number Integer
              | String String
              | Bool Bool
+               deriving (Show)
 
 symbol :: Parser Char
 symbol = oneOf "!#$%&|*+-/:<=>?@^_~"
@@ -17,10 +18,16 @@ symbol = oneOf "!#$%&|*+-/:<=>?@^_~"
 spaces :: Parser ()
 spaces = skipMany1 space
 
+escapedChars :: Parser Char
+escapedChars = do
+  char '\\'
+  x <- oneOf "\\\""
+  return x
+
 parseString :: Parser LispVal
 parseString = do
   char '"'
-  x <- many $ noneOf "\""
+  x <- many $ escapedChars <|> noneOf "\"\\"
   char '"'
   return $ String x
 
@@ -45,7 +52,7 @@ parseExpr = parseAtom
 readExpr :: String -> String
 readExpr input = case parse parseExpr "lisp" input of
                    Left err -> "No match: " ++ show err
-                   Right _  -> "Found value"
+                   Right val  -> "Found value: " ++ show val
 
 main :: IO ()
 main = getArgs >>= putStrLn . readExpr . head
