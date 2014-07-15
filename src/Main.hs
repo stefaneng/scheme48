@@ -47,6 +47,13 @@ digits = many1 digit
 base :: Parser Char
 base = char '#' >> oneOf "boxd"
 
+parseNumberBase :: Parser LispVal
+parseNumberBase = do
+  b <- base
+  case b of
+    'd' -> parseNumber
+
+
 parseNumber :: Parser LispVal
 parseNumber = liftM (Number . read) digits
 
