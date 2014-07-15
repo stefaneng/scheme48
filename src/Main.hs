@@ -4,6 +4,7 @@ import Text.ParserCombinators.Parsec hiding (spaces)
 import System.Environment (getArgs)
 import Control.Monad (liftM)
 import Numeric (readHex)
+import Numeric (readOct)
 
 data LispVal = Atom String
              | List [LispVal]
@@ -58,18 +59,28 @@ getValue _       = error "Should not happen"
 hexToNum :: (Num a, Eq a) => String -> a
 hexToNum = getValue . readHex
 
+octToNum :: (Num a, Eq a) => String -> a
+octToNum = getValue . readOct
+
 parseNumberBase :: Parser LispVal
 parseNumberBase = do
   b <- base
   case b of
     'd' -> parseNumber
     'x' -> parseNumberHex
+    'o' -> parseNumberOct
 
 hexDigits :: Parser String
 hexDigits = many1 hexDigit
 
+octDigits :: Parser String
+octDigits = many1 octDigit
+
 parseNumberHex :: Parser LispVal
 parseNumberHex = liftM (Number . hexToNum) hexDigits
+
+parseNumberOct :: Parser LispVal
+parseNumberOct = liftM (Number . octToNum) octDigits
 
 parseNumber :: Parser LispVal
 parseNumber = liftM (Number . read) digits
