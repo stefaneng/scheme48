@@ -44,6 +44,9 @@ parseAtom = do
 digits :: Parser String
 digits = many1 digit
 
+base :: Parser Char
+base = char '#' >> oneOf "boxd"
+
 parseNumber :: Parser LispVal
 parseNumber = liftM (Number . read) digits
 
