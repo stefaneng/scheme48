@@ -63,7 +63,13 @@ parseNumberBase = do
   b <- base
   case b of
     'd' -> parseNumber
+    'x' -> parseNumberHex
 
+hexDigits :: Parser String
+hexDigits = many1 hexDigit
+
+parseNumberHex :: Parser LispVal
+parseNumberHex = liftM (Number . hexToNum) hexDigits
 
 parseNumber :: Parser LispVal
 parseNumber = liftM (Number . read) digits
