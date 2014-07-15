@@ -83,6 +83,7 @@ isBinChar _   = False
 binCharToInt :: Char -> Int
 binCharToInt '0' = 0
 binCharToInt '1' = 1
+binCharToInt _   = error "Not a binary character"
 
 readBin :: (Num a, Eq a) => ReadS a
 readBin = readInt 2 isBinChar binCharToInt
