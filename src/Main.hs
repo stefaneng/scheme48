@@ -47,6 +47,10 @@ digits = many1 digit
 base :: Parser Char
 base = char '#' >> oneOf "boxd"
 
+getValue :: [(a, String)] -> a
+getValue [(x,_)] = x
+getValue _       = error "Should not happen"
+
 parseNumberBase :: Parser LispVal
 parseNumberBase = do
   b <- base
