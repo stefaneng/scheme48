@@ -1,11 +1,9 @@
 module Main where
 
-import Text.ParserCombinators.Parsec hiding (spaces)
-import System.Environment (getArgs)
 import Control.Monad (liftM)
-import Numeric (readHex)
-import Numeric (readOct)
-import Numeric (readInt)
+import Numeric (readHex, readInt, readOct)
+import System.Environment (getArgs)
+import Text.ParserCombinators.Parsec hiding (spaces)
 
 data LispVal = Atom String
              | List [LispVal]
