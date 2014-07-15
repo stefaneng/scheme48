@@ -5,6 +5,7 @@ import System.Environment (getArgs)
 import Control.Monad (liftM)
 import Numeric (readHex)
 import Numeric (readOct)
+import Numeric (readInt)
 
 data LispVal = Atom String
              | List [LispVal]
@@ -62,6 +63,9 @@ hexToNum = getValue . readHex
 octToNum :: (Num a, Eq a) => String -> a
 octToNum = getValue . readOct
 
+binToNum :: (Num a, Eq a) => String -> a
+binToNum = getValue . readBin
+
 parseNumberBase :: Parser LispVal
 parseNumberBase = do
   b <- base
@@ -69,12 +73,31 @@ parseNumberBase = do
     'd' -> parseNumber
     'x' -> parseNumberHex
     'o' -> parseNumberOct
+    'b' -> parseNumberBin
+
+isBinChar :: Char -> Bool
+isBinChar '0' = True
+isBinChar '1' = True
+isBinChar _   = False
+
+binCharToInt :: Char -> Int
+binCharToInt '0' = 0
+binCharToInt '1' = 1
+
+readBin :: (Num a, Eq a) => ReadS a
+readBin = readInt 2 isBinChar binCharToInt
+
+binDigits :: Parser String
+binDigits = many1 $ oneOf "01"
 
 hexDigits :: Parser String
 hexDigits = many1 hexDigit
 
 octDigits :: Parser String
 octDigits = many1 octDigit
+
+parseNumberBin :: Parser LispVal
+parseNumberBin = liftM (Number . binToNum) binDigits
 
 parseNumberHex :: Parser LispVal
 parseNumberHex = liftM (Number . hexToNum) hexDigits
