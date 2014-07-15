@@ -21,7 +21,7 @@ spaces = skipMany1 space
 escapedChars :: Parser Char
 escapedChars = do
   char '\\'
-  x <- oneOf "\\\""
+  x <- oneOf "\\\"nrt"
   return x
 
 parseString :: Parser LispVal
