@@ -41,8 +41,11 @@ parseAtom = do
              "#f" -> Bool False
              _    -> Atom atom
 
+digits :: Parser String
+digits = many1 digit
+
 parseNumber :: Parser LispVal
-parseNumber = liftM (Number . read) (many1 digit)
+parseNumber = liftM (Number . read) digits
 
 parseExpr :: Parser LispVal
 parseExpr = parseAtom
