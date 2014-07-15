@@ -11,6 +11,7 @@ data LispVal = Atom String
              | Number Integer
              | String String
              | Bool Bool
+             | Character Char
                deriving (Show)
 
 symbol :: Parser Char
@@ -51,12 +52,18 @@ parseHash = do
     'x' -> parseNumberHex
     'o' -> parseNumberOct
     'b' -> parseNumberBin
+    '\\' -> parseChar
+
+parseChar :: Parser LispVal
+parseChar = do
+  c <- anyChar
+  return $ Character c
 
 digits :: Parser String
 digits = many1 digit
 
 hashchar :: Parser Char
-hashchar = char '#' >> oneOf "boxdtf"
+hashchar = char '#' >> oneOf "boxdtf\\"
 
 -- Gets the value from a read function such as readHex
 -- Since the parser handles parsing we know it will always
