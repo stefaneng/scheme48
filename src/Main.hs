@@ -3,6 +3,7 @@ module Main where
 import Text.ParserCombinators.Parsec hiding (spaces)
 import System.Environment (getArgs)
 import Control.Monad (liftM)
+import Numeric (readHex)
 
 data LispVal = Atom String
              | List [LispVal]
@@ -47,9 +48,15 @@ digits = many1 digit
 base :: Parser Char
 base = char '#' >> oneOf "boxd"
 
+-- Gets the value from a read function such as readHex
+-- Since the parser handles parsing we know it will always
+-- produce a value if the parser successes
 getValue :: [(a, String)] -> a
 getValue [(x,_)] = x
 getValue _       = error "Should not happen"
+
+hexToNum :: (Num a, Eq a) => String -> a
+hexToNum = getValue . readHex
 
 parseNumberBase :: Parser LispVal
 parseNumberBase = do
