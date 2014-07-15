@@ -39,16 +39,26 @@ parseAtom = do
   first <- letter <|> symbol
   rest <- many $ letter <|> digit <|> symbol
   let atom = first:rest
-  return $ case atom of
-             "#t" -> Bool True
-             "#f" -> Bool False
-             _    -> Atom atom
+  return $ Atom atom
+
+parseHash :: Parser LispVal
+parseHash = do
+  c <- hashchar
+  case c of
+    -- Will always be one of these values since
+    -- hashchar parses only these characters
+    't' -> return $ Bool True
+    'f' -> return $ Bool False
+    'd' -> parseNumber
+    'x' -> parseNumberHex
+    'o' -> parseNumberOct
+    'b' -> parseNumberBin
 
 digits :: Parser String
 digits = many1 digit
 
-base :: Parser Char
-base = char '#' >> oneOf "boxd"
+hashchar :: Parser Char
+hashchar = char '#' >> oneOf "boxdtf"
 
 -- Gets the value from a read function such as readHex
 -- Since the parser handles parsing we know it will always
@@ -65,15 +75,6 @@ octToNum = getValue . readOct
 
 binToNum :: (Num a, Eq a) => String -> a
 binToNum = getValue . readBin
-
-parseNumberBase :: Parser LispVal
-parseNumberBase = do
-  b <- base
-  case b of
-    'd' -> parseNumber
-    'x' -> parseNumberHex
-    'o' -> parseNumberOct
-    'b' -> parseNumberBin
 
 isBinChar :: Char -> Bool
 isBinChar '0' = True
@@ -110,7 +111,8 @@ parseNumber :: Parser LispVal
 parseNumber = liftM (Number . read) digits
 
 parseExpr :: Parser LispVal
-parseExpr = parseAtom
+parseExpr = parseHash
+            <|> parseAtom
             <|> parseString
             <|> parseNumber
 
