@@ -19,3 +19,4 @@ cabal run
 ## Resources
 * [Write Yourself a Scheme](http://en.wikibooks.org/wiki/Write_Yourself_a_Scheme_in_48_Hours)
 * [Parsing Floats with Parsec](https://www.fpcomplete.com/school/to-infinity-and-beyond/pick-of-the-week/parsing-floats-with-parsec)
+* [Try a <|> b considered harmful](http://blog.ezyang.com/2014/05/parsec-try-a-or-b-considered-harmful/)
