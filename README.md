@@ -10,7 +10,6 @@ cabal install
 
 ## Layout
 * `src/` code for the actual interpreter
-* `examples/` code from the book, exercises, etc.
 
 ## Usage
 ```bash
