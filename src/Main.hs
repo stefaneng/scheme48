@@ -131,6 +131,7 @@ parseExpr :: Parser LispVal
 parseExpr = parseHash
             <|> parseAtom
             <|> parseString
+            <|> try parseFloat
             <|> parseNumber
 
 readExpr :: String -> String
