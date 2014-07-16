@@ -5,6 +5,7 @@ import Numeric (readHex, readInt, readOct, readFloat)
 import System.Environment (getArgs)
 import Text.ParserCombinators.Parsec hiding (spaces)
 import Control.Applicative ((<$>), (<*>))
+import Data.Ratio
 
 
 data LispVal = Atom String
@@ -14,7 +15,8 @@ data LispVal = Atom String
              | String String
              | Bool Bool
              | Character Char
-             | Real Float
+             | Real Double
+             | Rational Rational
                deriving (Show)
 
 symbol :: Parser Char
@@ -62,14 +64,20 @@ parseChar = do
   c <- anyChar
   return $ Character c
 
-getFloat :: String -> Float
-getFloat = getValue . readFloat
+getDouble :: String -> Double
+getDouble = getValue . readFloat
 
 parseReal :: Parser LispVal
-parseReal = liftM (Real . getFloat) float
+parseReal = liftM (Real . getDouble) float
     where float = (++) <$> digits <*> decimal
           decimal = (:) <$> char '.' <*> digits
 
+parseRational :: Parser LispVal
+parseRational = do
+  numer <- digits
+  char '/'
+  denom <- digits
+  return $ Rational ((read numer) % (read denom))
 
 digits :: Parser String
 digits = many1 digit
@@ -128,7 +136,7 @@ parseInteger :: Parser LispVal
 parseInteger = liftM (Integer . read) digits
 
 parseNumber :: Parser LispVal
-parseNumber = try parseReal <|> parseInteger
+parseNumber = try parseReal <|> try parseRational <|> parseInteger
 
 parseExpr :: Parser LispVal
 parseExpr = parseHash
