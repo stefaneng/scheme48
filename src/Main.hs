@@ -1,9 +1,11 @@
 module Main where
 
 import Control.Monad (liftM)
-import Numeric (readHex, readInt, readOct)
+import Numeric (readHex, readInt, readOct, readFloat)
 import System.Environment (getArgs)
 import Text.ParserCombinators.Parsec hiding (spaces)
+import Control.Applicative ((<$>), (<*>))
+
 
 data LispVal = Atom String
              | List [LispVal]
@@ -59,6 +61,15 @@ parseChar :: Parser LispVal
 parseChar = do
   c <- anyChar
   return $ Character c
+
+getFloat :: String -> Float
+getFloat = getValue . readFloat
+
+parseFloat :: Parser LispVal
+parseFloat = liftM (Float . getFloat) float
+    where float = (++) <$> digits <*> decimal
+          decimal = (:) <$> char '.' <*> digits
+
 
 digits :: Parser String
 digits = many1 digit
