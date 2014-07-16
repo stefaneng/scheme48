@@ -10,7 +10,7 @@ import Control.Applicative ((<$>), (<*>))
 data LispVal = Atom String
              | List [LispVal]
              | DottedList [LispVal] LispVal
-             | Number Integer
+             | Integer Integer
              | String String
              | Bool Bool
              | Character Char
@@ -116,22 +116,24 @@ octDigits :: Parser String
 octDigits = many1 octDigit
 
 parseNumberBin :: Parser LispVal
-parseNumberBin = liftM (Number . binToNum) binDigits
+parseNumberBin = liftM (Integer . binToNum) binDigits
 
 parseNumberHex :: Parser LispVal
-parseNumberHex = liftM (Number . hexToNum) hexDigits
+parseNumberHex = liftM (Integer . hexToNum) hexDigits
 
 parseNumberOct :: Parser LispVal
-parseNumberOct = liftM (Number . octToNum) octDigits
+parseNumberOct = liftM (Integer . octToNum) octDigits
+
+parseInteger :: Parser LispVal
+parseInteger = liftM (Integer . read) digits
 
 parseNumber :: Parser LispVal
-parseNumber = liftM (Number . read) digits
+parseNumber = try parseFloat <|> parseInteger
 
 parseExpr :: Parser LispVal
 parseExpr = parseHash
             <|> parseAtom
             <|> parseString
-            <|> try parseFloat
             <|> parseNumber
 
 readExpr :: String -> String
