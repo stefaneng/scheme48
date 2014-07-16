@@ -14,7 +14,7 @@ data LispVal = Atom String
              | String String
              | Bool Bool
              | Character Char
-             | Float Float
+             | Real Float
                deriving (Show)
 
 symbol :: Parser Char
@@ -65,8 +65,8 @@ parseChar = do
 getFloat :: String -> Float
 getFloat = getValue . readFloat
 
-parseFloat :: Parser LispVal
-parseFloat = liftM (Float . getFloat) float
+parseReal :: Parser LispVal
+parseReal = liftM (Real . getFloat) float
     where float = (++) <$> digits <*> decimal
           decimal = (:) <$> char '.' <*> digits
 
@@ -128,7 +128,7 @@ parseInteger :: Parser LispVal
 parseInteger = liftM (Integer . read) digits
 
 parseNumber :: Parser LispVal
-parseNumber = try parseFloat <|> parseInteger
+parseNumber = try parseReal <|> parseInteger
 
 parseExpr :: Parser LispVal
 parseExpr = parseHash
