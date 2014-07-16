@@ -12,6 +12,7 @@ data LispVal = Atom String
              | String String
              | Bool Bool
              | Character Char
+             | Float Float
                deriving (Show)
 
 symbol :: Parser Char
