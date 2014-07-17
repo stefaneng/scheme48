@@ -171,6 +171,11 @@ parseExpr = parseHash
             <|> parseAtom
             <|> parseString
             <|> parseNumber
+            <|> parseQuoted
+            <|> do char '('
+                   x <- try parseList <|> parseDottedList
+                   char ')'
+                   return x
 
 readExpr :: String -> String
 readExpr input = case parse parseExpr "lisp" input of
