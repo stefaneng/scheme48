@@ -154,6 +154,12 @@ parseNumber = try parseReal <|> try parseRational <|> try parseComplex <|> parse
 parseList :: Parser LispVal
 parseList = liftM List $ sepBy parseExpr spaces
 
+parseQuoted :: Parser LispVal
+parseQuoted = do
+  char '\''
+  x <- parseExpr
+  return $ List [Atom "quote", x]
+
 parseExpr :: Parser LispVal
 parseExpr = parseHash
             <|> parseAtom
