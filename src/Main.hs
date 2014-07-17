@@ -151,6 +151,9 @@ parseInteger = liftM (Integer . read) digits
 parseNumber :: Parser LispVal
 parseNumber = try parseReal <|> try parseRational <|> try parseComplex <|> parseInteger
 
+parseList :: Parser LispVal
+parseList = liftM List $ sepBy parseExpr spaces
+
 parseExpr :: Parser LispVal
 parseExpr = parseHash
             <|> parseAtom
