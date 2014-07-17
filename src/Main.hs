@@ -5,16 +5,19 @@ import Numeric (readHex, readInt, readOct, readFloat)
 import System.Environment (getArgs)
 import Text.ParserCombinators.Parsec hiding (spaces)
 import Control.Applicative ((<$>), (<*>))
-
+import Data.Ratio
+import Data.Complex
 
 data LispVal = Atom String
              | List [LispVal]
              | DottedList [LispVal] LispVal
-             | Number Integer
+             | Integer Integer
              | String String
              | Bool Bool
              | Character Char
-             | Float Float
+             | Real Double
+             | Rational Rational
+             | Complex (Complex Double)
                deriving (Show)
 
 symbol :: Parser Char
@@ -62,14 +65,32 @@ parseChar = do
   c <- anyChar
   return $ Character c
 
-getFloat :: String -> Float
-getFloat = getValue . readFloat
+getDouble :: String -> Double
+getDouble = getValue . readFloat
 
-parseFloat :: Parser LispVal
-parseFloat = liftM (Float . getFloat) float
+toDouble :: LispVal -> Double
+toDouble (Real f)  = f
+toDouble (Integer n) = fromIntegral n
+
+parseReal :: Parser LispVal
+parseReal = liftM (Real . getDouble) float
     where float = (++) <$> digits <*> decimal
           decimal = (:) <$> char '.' <*> digits
 
+parseRational :: Parser LispVal
+parseRational = do
+  numer <- digits
+  char '/'
+  denom <- digits
+  return $ Rational ((read numer) % (read denom))
+
+parseComplex :: Parser LispVal
+parseComplex = do
+  x <- (try parseReal <|> parseInteger)
+  char '+'
+  y <- (try parseReal <|> parseInteger)
+  char 'i'
+  return $ Complex (toDouble x :+ toDouble y)
 
 digits :: Parser String
 digits = many1 digit
@@ -116,22 +137,24 @@ octDigits :: Parser String
 octDigits = many1 octDigit
 
 parseNumberBin :: Parser LispVal
-parseNumberBin = liftM (Number . binToNum) binDigits
+parseNumberBin = liftM (Integer . binToNum) binDigits
 
 parseNumberHex :: Parser LispVal
-parseNumberHex = liftM (Number . hexToNum) hexDigits
+parseNumberHex = liftM (Integer . hexToNum) hexDigits
 
 parseNumberOct :: Parser LispVal
-parseNumberOct = liftM (Number . octToNum) octDigits
+parseNumberOct = liftM (Integer . octToNum) octDigits
+
+parseInteger :: Parser LispVal
+parseInteger = liftM (Integer . read) digits
 
 parseNumber :: Parser LispVal
-parseNumber = liftM (Number . read) digits
+parseNumber = try parseReal <|> try parseRational <|> try parseComplex <|> parseInteger
 
 parseExpr :: Parser LispVal
 parseExpr = parseHash
             <|> parseAtom
             <|> parseString
-            <|> try parseFloat
             <|> parseNumber
 
 readExpr :: String -> String
