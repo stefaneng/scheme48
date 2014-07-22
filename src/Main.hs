@@ -18,7 +18,26 @@ data LispVal = Atom String
              | Real Double
              | Rational Rational
              | Complex (Complex Double)
-               deriving (Show)
+
+instance Show LispVal where
+    show = showVal
+
+showVal :: LispVal -> String
+showVal (String contents) = "\"" ++ contents ++ "\""
+showVal (Atom name) = name
+showVal (Character name) = [name]
+showVal (Integer contents) = show contents
+showVal (Real contents) = show contents
+showVal (Rational contents) = show contents
+showVal (Complex contents) = show contents
+showVal (Bool True) = "#t"
+showVal (Bool False) = "#f"
+showVal (List contents) = "(" ++ unwordsList contents ++ ")"
+showVal (DottedList head' tail') = "(" ++ unwordsList head' ++ " . " ++ showVal tail' ++ ")"
+
+
+unwordsList :: [LispVal] -> String
+unwordsList = unwords . map showVal
 
 symbol :: Parser Char
 symbol = oneOf "!#$%&|*+-/:<=>?@^_~"
