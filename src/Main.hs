@@ -11,25 +11,33 @@ import Data.Complex
 data LispVal = Atom String
              | List [LispVal]
              | DottedList [LispVal] LispVal
-             | Integer Integer
              | String String
              | Bool Bool
              | Character Char
-             | Real Double
-             | Rational Rational
-             | Complex (Complex Double)
+             | Number Number
+
+data Number = Integer Integer
+            | Real Double
+            | Rational Rational
+            | Complex (Complex Double)
+
+instance Show Number where
+    show = showNumber
 
 instance Show LispVal where
     show = showVal
+
+showNumber :: Number -> String
+showNumber (Integer contents) = show contents
+showNumber (Real contents) = show contents
+showNumber (Rational contents) = show contents
+showNumber (Complex contents) = show contents
 
 showVal :: LispVal -> String
 showVal (String contents) = "\"" ++ contents ++ "\""
 showVal (Atom name) = name
 showVal (Character name) = [name]
-showVal (Integer contents) = show contents
-showVal (Real contents) = show contents
-showVal (Rational contents) = show contents
-showVal (Complex contents) = show contents
+showVal (Number contents) = show contents
 showVal (Bool True) = "#t"
 showVal (Bool False) = "#f"
 showVal (List contents) = "(" ++ unwordsList contents ++ ")"
@@ -88,11 +96,11 @@ getDouble :: String -> Double
 getDouble = getValue . readFloat
 
 toDouble :: LispVal -> Double
-toDouble (Real f)  = f
-toDouble (Integer n) = fromIntegral n
+toDouble (Number (Real f))  = f
+toDouble (Number (Integer n)) = fromIntegral n
 
 parseReal :: Parser LispVal
-parseReal = liftM (Real . getDouble) float
+parseReal = liftM (Number . Real . getDouble) float
     where float = (++) <$> digits <*> decimal
           decimal = (:) <$> char '.' <*> digits
 
@@ -101,7 +109,7 @@ parseRational = do
   numer <- digits
   char '/'
   denom <- digits
-  return $ Rational ((read numer) % (read denom))
+  return $ Number $ Rational ((read numer) % (read denom))
 
 parseComplex :: Parser LispVal
 parseComplex = do
@@ -109,7 +117,7 @@ parseComplex = do
   char '+'
   y <- (try parseReal <|> parseInteger)
   char 'i'
-  return $ Complex (toDouble x :+ toDouble y)
+  return $ Number $ Complex (toDouble x :+ toDouble y)
 
 digits :: Parser String
 digits = many1 digit
@@ -156,16 +164,16 @@ octDigits :: Parser String
 octDigits = many1 octDigit
 
 parseNumberBin :: Parser LispVal
-parseNumberBin = liftM (Integer . binToNum) binDigits
+parseNumberBin = liftM (Number . Integer . binToNum) binDigits
 
 parseNumberHex :: Parser LispVal
-parseNumberHex = liftM (Integer . hexToNum) hexDigits
+parseNumberHex = liftM (Number . Integer . hexToNum) hexDigits
 
 parseNumberOct :: Parser LispVal
-parseNumberOct = liftM (Integer . octToNum) octDigits
+parseNumberOct = liftM (Number . Integer . octToNum) octDigits
 
 parseInteger :: Parser LispVal
-parseInteger = liftM (Integer . read) digits
+parseInteger = liftM (Number . Integer . read) digits
 
 parseNumber :: Parser LispVal
 parseNumber = try parseReal <|> try parseRational <|> try parseComplex <|> parseInteger
