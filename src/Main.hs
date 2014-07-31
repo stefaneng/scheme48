@@ -226,10 +226,19 @@ primitives = [("+", numericBinop (+)),
               ("/", numericBinop div),
               ("mod", numericBinop mod),
               ("quotient", numericBinop quot),
-              ("remainder", numericBinop rem)]
+              ("remainder", numericBinop rem),
+              ("string?", typeTest "string?"),
+              ("number?", typeTest "number?")]
 
 numericBinop :: (Integer -> Integer -> Integer) -> [LispVal] -> LispVal
 numericBinop op params = Number . Integer $ foldl1 op $ map unpackNum params
+
+-- | type test primitive function
+-- TODO: symbol? and others. Also make (string? "hi" 1 2 3) fail and not return false ...
+typeTest :: String -> [LispVal] -> LispVal
+typeTest "string?" [(String _)] = Bool True
+typeTest "number?" [(Number _)] = Bool True
+typeTest _         _          = Bool False
 
 unpackNum :: LispVal -> Integer
 unpackNum (Number (Integer n)) = n
