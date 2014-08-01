@@ -73,6 +73,7 @@ library
     Language.Scheme.Types
     Language.Scheme.Types.Instances
     Language.Scheme.Parser
+    Language.Scheme.Evaluator
   hs-source-dirs:      src
   build-depends:       base >=4.7 && <4.8, parsec >= 3
   default-language:    Haskell2010
