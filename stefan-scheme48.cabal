@@ -60,10 +60,18 @@ executable stefan-scheme48
   -- other-extensions:
 
   -- Other library packages from which modules are imported.
-  build-depends:       base >=4.7 && <4.8, parsec >= 3
+  build-depends:       base >=4.7 && <4.8, parsec >= 3, stefan-scheme48
 
   -- Directories containing source files.
   -- hs-source-dirs:
 
   -- Base language which the package is written in.
+  default-language:    Haskell2010
+
+library
+  exposed-modules:
+    Language.Scheme.Types
+    Language.Scheme.Types.Instances
+  hs-source-dirs:      src
+  build-depends:       base >=4.7 && <4.8, parsec >= 3
   default-language:    Haskell2010
