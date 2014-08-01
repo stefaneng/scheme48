@@ -238,7 +238,8 @@ numericBinop op params = Number . Integer $ foldl1 op $ map unpackNum params
 typeTest :: String -> [LispVal] -> LispVal
 typeTest "string?" [(String _)] = Bool True
 typeTest "number?" [(Number _)] = Bool True
-typeTest _         _          = Bool False
+typeTest "symbol?" [(Atom _)]   = Bool True
+typeTest _         _            = Bool False
 
 unpackNum :: LispVal -> Integer
 unpackNum (Number (Integer n)) = n
