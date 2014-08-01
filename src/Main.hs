@@ -6,20 +6,8 @@ import System.Environment (getArgs)
 import Text.ParserCombinators.Parsec hiding (spaces)
 import Control.Applicative ((<$>), (<*>))
 import Data.Ratio
-import Data.Complex
-
-data LispVal = Atom String
-             | List [LispVal]
-             | DottedList [LispVal] LispVal
-             | String String
-             | Bool Bool
-             | Character Char
-             | Number Number
-
-data Number = Integer Integer
-            | Real Double
-            | Rational Rational
-            | Complex (Complex Double)
+import Language.Scheme.Types
+import Data.Complex (Complex((:+)))
 
 instance Show Number where
     show = showNumber
