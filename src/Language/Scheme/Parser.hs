@@ -1,6 +1,8 @@
 module Language.Scheme.Parser where
 
 import Language.Scheme.Types
+import Language.Scheme.Error
+import Language.Scheme.Error.Types
 
 import Text.ParserCombinators.Parsec hiding (spaces)
 import Numeric (readHex, readInt, readOct, readFloat)
@@ -8,6 +10,7 @@ import Control.Monad (liftM)
 import Control.Applicative ((<$>), (<*>))
 import Data.Complex (Complex((:+)))
 import Data.Ratio ((%))
+import Control.Monad.Except (throwError)
 
 symbol :: Parser Char
 symbol = oneOf "!#$%&|*+-/:<=>?@^_~"
@@ -166,7 +169,7 @@ parseExpr = parseHash
                    char ')'
                    return x
 
-readExpr :: String -> LispVal
+readExpr :: String -> ThrowsError LispVal
 readExpr input = case parse parseExpr "lisp" input of
-                   Left err -> String $ "No match: " ++ show err
-                   Right val  -> val
+                   Left err -> throwError $ Parser err
+                   Right val  -> return val
