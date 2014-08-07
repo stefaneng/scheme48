@@ -71,7 +71,6 @@ executable stefan-scheme48
 library
   exposed-modules:
     Language.Scheme.Types
-    Language.Scheme.Types.Instances
     Language.Scheme.Parser
     Language.Scheme.Evaluator
     Language.Scheme.Error.Types

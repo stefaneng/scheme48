@@ -1,7 +1,6 @@
 module Language.Scheme.Parser where
 
 import Language.Scheme.Types
-import Language.Scheme.Types.Instances
 
 import Text.ParserCombinators.Parsec hiding (spaces)
 import Numeric (readHex, readInt, readOct, readFloat)

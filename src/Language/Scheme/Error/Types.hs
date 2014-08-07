@@ -2,7 +2,6 @@ module Language.Scheme.Error.Types where
 
 import Language.Scheme.Types
 import Text.ParserCombinators.Parsec.Error (ParseError)
-import Language.Scheme.Types.Instances (unwordsList)
 
 data LispError = NumArgs Integer [LispVal]
                | TypeMismatch String LispVal
