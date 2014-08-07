@@ -1,5 +1,6 @@
 module Language.Scheme.Error.Types where
 
+import Control.Monad.Except
 import Language.Scheme.Types
 import Text.ParserCombinators.Parsec.Error (ParseError)
 
@@ -23,3 +24,5 @@ showError (TypeMismatch expected found) = "Invalid type: expected " ++ expected
 showError (Parser parseErr)             = "Parse error at " ++ show parseErr
 
 instance Show LispError where show = showError
+
+type ThrowsError = Either LispError
