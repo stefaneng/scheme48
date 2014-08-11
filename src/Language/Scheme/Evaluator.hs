@@ -19,21 +19,64 @@ apply func args = maybe (throwError $ NotFunction "Unrecognized primitive functi
                   (lookup func primitives)
 
 primitives :: [(String, [LispVal] -> ThrowsError LispVal)]
-primitives = [("+", numericBinop (+)),
-              ("-", numericBinop (-)),
-              ("*", numericBinop (*)),
-              ("/", numericBinop div),
-              ("mod", numericBinop mod),
-              ("quotient", numericBinop quot),
-              ("remainder", numericBinop rem),
-              ("string?", typeTest "string?"),
-              ("number?", typeTest "number?")]
+primitives = [
+ ("+", numericBinop (+)),
+ ("-", numericBinop (-)),
+ ("*", numericBinop (*)),
+ ("/", numericBinop div),
+ ("mod", numericBinop mod),
+ ("quotient", numericBinop quot),
+ ("remainder", numericBinop rem),
+ -- Type test functions
+ ("string?", typeTest "string?"),
+ ("number?", typeTest "number?"),
+ -- boolBinop functions
+ ("=", numBoolBinop (==)),
+ ("<", numBoolBinop (<)),
+ (">", numBoolBinop (>)),
+ ("/=", numBoolBinop (/=)),
+ (">=", numBoolBinop (>=)),
+ ("<=", numBoolBinop (<=)),
+ ("&&", boolBoolBinop (&&)),
+ ("||", boolBoolBinop (||)),
+ ("string=?", strBoolBinop (==)),
+ ("string<?", strBoolBinop (<)),
+ ("string>?", strBoolBinop (>)),
+ ("string<=?", strBoolBinop (<=)),
+ ("string>=?", strBoolBinop (>=))]
+
+boolBinop :: (LispVal -> ThrowsError a) -> (a -> a -> Bool) -> [LispVal] -> ThrowsError LispVal
+boolBinop unpacker op args = if length args /= 2
+                             then throwError $ NumArgs 2 args
+                             else do
+                               left <- unpacker $ args !! 0
+                               right <- unpacker $ args !! 1
+                               return $ Bool $ left `op` right
 
 numericBinop :: (Integer -> Integer -> Integer) -> [LispVal] -> ThrowsError LispVal
 numericBinop _ []              = throwError $ NumArgs 2 []
 numericBinop _ singleVal @[_]  = throwError $ NumArgs 2 singleVal
 numericBinop op params         = mapM unpackNum params >>=
                                  return . Number . Integer . foldl1 op
+
+numBoolBinop :: (Integer -> Integer -> Bool) -> [LispVal] -> ThrowsError LispVal
+numBoolBinop = boolBinop unpackNum
+
+strBoolBinop :: (String -> String -> Bool) -> [LispVal] -> ThrowsError LispVal
+strBoolBinop = boolBinop unpackStr
+
+boolBoolBinop :: (Bool -> Bool -> Bool) -> [LispVal] -> ThrowsError LispVal
+boolBoolBinop = boolBinop unpackBool
+
+unpackStr :: LispVal -> ThrowsError String
+unpackStr (String s) = return s
+unpackStr (Number s) = return $ show s
+unpackStr (Bool s)   = return $ show s
+unpackStr notString = throwError $ TypeMismatch "string" notString
+
+unpackBool :: LispVal -> ThrowsError Bool
+unpackBool (Bool b) = return b
+unpackBool notBool  = throwError $ TypeMismatch "boolean" notBool
 
 -- | type test primitive function
 -- TODO: symbol? and others. Also make (string? "hi" 1 2 3) fail and not return false ...
