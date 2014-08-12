@@ -48,7 +48,8 @@ primitives = [
  ("string<?", strBoolBinop (<)),
  ("string>?", strBoolBinop (>)),
  ("string<=?", strBoolBinop (<=)),
- ("string>=?", strBoolBinop (>=))]
+ ("string>=?", strBoolBinop (>=)),
+ ("car", car)]
 
 boolBinop :: (LispVal -> ThrowsError a) -> (a -> a -> Bool) -> [LispVal] -> ThrowsError LispVal
 boolBinop unpacker op args = if length args /= 2
@@ -72,6 +73,12 @@ strBoolBinop = boolBinop unpackStr
 
 boolBoolBinop :: (Bool -> Bool -> Bool) -> [LispVal] -> ThrowsError LispVal
 boolBoolBinop = boolBinop unpackBool
+
+car :: [LispVal] -> ThrowsError LispVal
+car [List (x : _)]          = return x
+car [DottedList (x : _) _]  = return x
+car [badArg]                = throwError $ TypeMismatch "pair" badArg
+car badArgList              = throwError $ NumArgs 1 badArgList
 
 unpackStr :: LispVal -> ThrowsError String
 unpackStr (String s) = return s
