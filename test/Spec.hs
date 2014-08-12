@@ -15,9 +15,10 @@ evalString strExpr = readExpr strExpr >>= eval
 evalFull :: String -> String
 evalFull = extractValue . trapError . liftM show . evalString
 
-main :: IO ()
-main = hspec $ do
- describe "car primitive" $ do
+-- | Spec for the `car` primitive
+carSpec :: Spec
+carSpec =
+ describe "car" $ do
   it "should return the first element of an S-expr" $ do
     evalFull "(car '(a b c))" `shouldBe` "a"
   it "should return the first element of a dotted list" $ do
@@ -28,8 +29,13 @@ main = hspec $ do
       (Left (TypeMismatch _ _)) -> return ()
       x                         -> expectationFailure $
                                "Expected a type mismatch but got: " ++ show x
-  it "should report a wrong number of arguments when args > 1" $ do
+  it "should report a wrong number of arguments when number of args is not 1" $ do
     case evalString "(car 'a 'b)" of
       (Left (NumArgs 1 _)) -> return ()
       x                    -> expectationFailure $
                               "Expected a wrong number of args error but got: " ++ show x
+
+main :: IO ()
+main = hspec $ do
+  describe "Primitive Functions" $ do
+    carSpec
