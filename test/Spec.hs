@@ -13,6 +13,7 @@ main :: IO ()
 main = hspec $ do
   describe "Primitive Functions" $ do
     carSpec
+    cdrSpec
 
 -- | Spec for the `car` primitive
 carSpec :: Spec
@@ -38,6 +39,28 @@ carSpec =
       (Left (TypeMismatch _ _)) -> return ()
       x                         -> expectationFailure $
                                    "Expected to fail due to an empty list but got: " ++ show x
+
+cdrSpec :: Spec
+cdrSpec = do
+  describe "cdr" $ do
+   it "should return the tail of a pair" $ do
+     evalFull "(cdr '(a b c))" `shouldBe` "(b c)"
+     evalFull "(cdr '(a b))" `shouldBe` "(b)"
+   it "should return an empty list (nil) when only one element" $ do
+     evalFull "(cdr '(a))" `shouldBe` "()"
+   it "should return the tail of a dotted pair" $ do
+     evalFull "(cdr '(a . b))" `shouldBe` "b"
+     evalFull "(cdr '(a b . c))" `shouldBe` "(b . c)"
+   it "should fail when argument is not a pair" $ do
+    case evalString "(cdr 'a)" of
+      (Left (TypeMismatch _ _)) -> return ()
+      x                         -> expectationFailure $
+                                   "Expected a type mismatch but got: " ++ show x
+   it "should fail when number of arguments is not 1" $ do
+    case evalString "(cdr 'a 'b)" of
+      (Left (NumArgs 1 _)) -> return ()
+      x                    -> expectationFailure $
+                              "Expected a wrong number of args error but got: " ++ show x
 
 evalString :: String -> ThrowsError LispVal
 evalString strExpr = readExpr strExpr >>= eval
