@@ -1,7 +1,37 @@
+module Main where
+
 import Test.Hspec
+
+import Language.Scheme.Evaluator
+import Language.Scheme.Parser
+import Language.Scheme.Error
+import Language.Scheme.Error.Types
+
+-- Until we refractor this into its own method, lets keep it here
+
+--evalFull :: String ->
+--evalFull :: String -> String
+evalString :: String -> ThrowsError String
+evalString strExpr = readExpr strExpr >>= eval >>= unpackStr
+
+evalFull :: String -> String
+evalFull = extractValue . trapError . evalString
 
 main :: IO ()
 main = hspec $ do
-         describe "Example Test" $ do
-                 it "returns the first element of a list" $ do
-                                     head [23 ..] `shouldBe` (23 :: Int)
+ describe "car primitive" $ do
+  it "should return the first element of an S-expr" $ do
+    evalFull "(car '(a b c))" `shouldBe` "a"
+  it "should return the first element of a dotted list" $ do
+    evalFull "(car '(a b . c))" `shouldBe` "a"
+ -- There really should be a better way to fail if it does not pattern match
+  it "should report a type mismatch" $ do
+    case evalString "(car 'a)" of
+      (Left (TypeMismatch _ _)) -> return ()
+      x                         -> expectationFailure $
+                               "Expected a type mismatch but got: " ++ show x
+  it "should report a wrong number of arguments" $ do
+    case evalString "(car 'a 'b)" of
+      (Left (NumArgs 1 _)) -> return ()
+      x                    -> expectationFailure $
+                              "Expected a wrong number of args error but got: " ++ show x
