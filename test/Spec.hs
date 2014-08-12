@@ -9,10 +9,6 @@ import Language.Scheme.Error.Types
 import Language.Scheme.Types
 import Control.Monad (liftM)
 
--- Until we refractor this into its own method, lets keep it here
-
---evalFull :: String ->
---evalFull :: String -> String
 evalString :: String -> ThrowsError LispVal
 evalString strExpr = readExpr strExpr >>= eval
 
