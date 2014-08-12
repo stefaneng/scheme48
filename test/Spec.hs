@@ -9,11 +9,10 @@ import Language.Scheme.Error.Types
 import Language.Scheme.Types
 import Control.Monad (liftM)
 
-evalString :: String -> ThrowsError LispVal
-evalString strExpr = readExpr strExpr >>= eval
-
-evalFull :: String -> String
-evalFull = extractValue . trapError . liftM show . evalString
+main :: IO ()
+main = hspec $ do
+  describe "Primitive Functions" $ do
+    carSpec
 
 -- | Spec for the `car` primitive
 carSpec :: Spec
@@ -35,7 +34,8 @@ carSpec =
       x                    -> expectationFailure $
                               "Expected a wrong number of args error but got: " ++ show x
 
-main :: IO ()
-main = hspec $ do
-  describe "Primitive Functions" $ do
-    carSpec
+evalString :: String -> ThrowsError LispVal
+evalString strExpr = readExpr strExpr >>= eval
+
+evalFull :: String -> String
+evalFull = extractValue . trapError . liftM show . evalString
