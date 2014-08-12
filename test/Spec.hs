@@ -33,6 +33,11 @@ carSpec =
       (Left (NumArgs 1 _)) -> return ()
       x                    -> expectationFailure $
                               "Expected a wrong number of args error but got: " ++ show x
+  it "should fail when given an empty list" $ do
+    case evalString "(car '())" of
+      (Left (TypeMismatch _ _)) -> return ()
+      x                         -> expectationFailure $
+                                   "Expected to fail due to an empty list but got: " ++ show x
 
 evalString :: String -> ThrowsError LispVal
 evalString strExpr = readExpr strExpr >>= eval
