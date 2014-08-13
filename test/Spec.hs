@@ -14,6 +14,7 @@ main = hspec $ do
   describe "Primitive Functions" $ do
     carSpec
     cdrSpec
+    consSpec
 
 -- | Spec for the `car` primitive
 carSpec :: Spec
@@ -61,6 +62,28 @@ cdrSpec = do
       (Left (NumArgs 1 _)) -> return ()
       x                    -> expectationFailure $
                               "Expected a wrong number of args error but got: " ++ show x
+
+consSpec :: Spec
+consSpec = do
+  describe "cons" $ do
+    it "should make a one element list if you cons anything together with nil" $ do
+      evalFull "(cons '1 '())" `shouldBe` "(1)"
+      evalFull "(cons '(1 2 3) '())" `shouldBe` "((1 2 3))"
+    it "should prepend values to the front of a non-empty list" $ do
+      evalFull "(cons '1 '(2 3))" `shouldBe` "(1 2 3)"
+      evalFull "(cons '(1 2) '(3 4))" `shouldBe` "((1 2) 3 4)"
+    it "should cons onything to a non-list as a dotted list" $ do
+      evalFull "(cons '1 '2)" `shouldBe` "(1 . 2)"
+      evalFull "(cons '(1 2 3) 'a)" `shouldBe` "((1 2 3) . a)"
+    it "should fail when attempting to cons together more or less than two arguments" $ do
+      numArgsError "(cons '1 '2 '3)"
+      numArgsError "(cons '1)"
+      where numArgsError expr =
+                case evalString expr of
+                  (Left (NumArgs 2 _)) -> return ()
+                  x                    -> expectationFailure $
+                                     "Expected a wrong number of args error but got: "
+                                     ++ show x
 
 evalString :: String -> ThrowsError LispVal
 evalString strExpr = readExpr strExpr >>= eval
